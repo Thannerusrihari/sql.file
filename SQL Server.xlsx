@@ -1,0 +1,79 @@
+
+------ looking at tpotal population vs vaccination
+--select  dea.continent, dea.location,dea.date,dea.population,vac.new_vaccinations
+--,sum(cast(vac.new_vaccinations as int)) over(partition by dea.location order by 
+--dea.location,dea.date) as rollingpeoplevaccinated
+----,(rollingpeoplevaccinated/population)*100
+--from [project work]..CovidDeaths dea
+--join [project work]..CovidVaccinations vac
+--    on dea.location= vac.location
+--	and dea.date = vac.date
+--	where vac.continent is not null
+--order by 2,3
+
+----use CTE 
+
+--;WITH popvsvac AS (
+--    SELECT  
+--        dea.continent,
+--        dea.location,
+--        dea.date,
+--        cast(dea.population as BIGINT) as population,
+--        cast(vac.new_vaccinations as bigint) as new_vaccinations,
+--        SUM(CAST(vac.new_vaccinations AS BIGINT)) OVER (
+--            PARTITION BY dea.location 
+--            ORDER BY dea.location, dea.date
+--        ) AS rollingpeoplevaccinated
+--    FROM 
+--        [project work]..CovidDeaths dea
+--    JOIN 
+--        [project work]..CovidVaccinations vac
+--        ON dea.location = vac.location
+--        AND dea.date = vac.date
+--    WHERE 
+--        dea.continent IS NOT NULL
+--)
+--SELECT *,
+--    case 
+--	    WHEN population = 0 then 0
+--		else(rollingpeoplevaccinated/population)*100
+--	end as vaccination_rate
+--FROM 
+--    popvsvac
+--ORDER BY 
+--    location, date;
+
+--	--TEMP TABLE
+--Drop table if exists #percentpopulationVaccinated
+--create table #percentpopulationVaccinated
+--(
+--continent nvarchar(255),
+--location nvarchar(255),
+--date datetime,
+--population numeric,
+--new_vaccinations numeric,
+--RollingpeopleVaccinated numeric
+--);
+--Insert into #percentpopulationVaccinated
+
+
+--select *,(RollingpeopleVaccinated/population)*100
+--from #percentpopulationVaccinated
+
+
+
+--creating   view to share data for later visualizations
+go
+create view percentpopulationVaccinated  as
+select  dea.continent, dea.location,dea.date,
+cast(dea.population As numeric),
+cast(vac.new_vaccinations as numeric),
+sum(cast(vac.new_vaccinations as numeric)) over(partition by dea.location order by 
+dea.location,dea.date) as rollingpeoplevaccinated
+--,(rollingpeoplevaccinated/population)*100
+from [project work]..CovidDeaths dea
+join [project work]..CovidVaccinations vac
+    on dea.location= vac.location
+	and dea.date = vac.date
+	where dea.continent is not null
+--order by 2,3
